@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Menus } from "../components/Menus";
 import { FaUserGraduate } from "react-icons/fa6";
 import { FaChalkboardTeacher } from "react-icons/fa";
@@ -8,17 +8,50 @@ import { MenuBar, ResponsiveMenuBar } from "../components/MenuBar";
 import Calendar from "react-calendar";
 import "../components/MyCalendar.css";
 import { ResponsiveContext } from "../components/ResponsiveProvider";
+import { UserContext } from "../../UserProvider";
+import { Button } from "@material-tailwind/react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 export const Admin = () => {
+  const { user, students, teachers, mainUsers, runExtra } =
+    useContext(UserContext);
   const [date, setDate] = useState(new Date());
+
+  const navigate = useNavigate();
 
   const { clicked, handleClicked } = useContext(ResponsiveContext);
 
   const boxShadow = {
     boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
   };
+
+  const logOut = () => {
+    try {
+      axios
+        .get("http://localhost:5005/logout")
+        .then((result) => {
+          console.log(result);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    runExtra();
+  }, []);
+
+  const { userDetails } = user || {};
+
   return (
     <>
+      <ToastContainer position="top-center" />
       <div className="grid grid-cols-12 h-[100vh]">
         <MenuBar menus={Menus} />
         {clicked && (
@@ -29,7 +62,9 @@ export const Admin = () => {
         <div className="bg-gray col-span-12 md:col-span-10  text-darkestPurple py-10 px-6">
           <div className="flex justify-between md:flex-row flex-col">
             <div className="py-3 md:py-0 flex justify-between md:block">
-              <h2 className="text-2xl font-bold">Welcome back, Admin</h2>
+              <h2 className="text-2xl font-bold">
+                Welcome back, {userDetails?.name}
+              </h2>
               <p className="md:hidden" onClick={handleClicked}>
                 <IoMenu size={30} />
               </p>
@@ -42,12 +77,14 @@ export const Admin = () => {
                   placeholder="Search"
                 />
               </div>
-              <div className="flex items-center justify-items-center">
+              <div className="flex items-center justify-items-center justify-between">
                 <img
                   src="src\assets\media\mypic.jpg"
                   alt=""
                   className="h-9 w-9 sm:h-12 sm:w-12 rounded-full"
                 />
+
+                <button onClick={logOut}>Logout</button>
               </div>
             </div>
           </div>
@@ -70,40 +107,28 @@ export const Admin = () => {
               </div>
               <div className="grid grid-cols-12 py-10 gap-4 mx-4">
                 <div
-                  className="rounded-lg col-span-12 md:col-span-4 text-darkestPurple pb-5 font-bold mb-5 md:mb-0"
+                  className="rounded-lg col-span-12 md:col-span-6 text-darkestPurple pb-5 font-bold mb-5 md:mb-0"
                   style={boxShadow}
                 >
                   <div className="flex items-center justify-center py-3">
                     <div>
                       <FaUserGraduate className="w-8 h-8 pr-3" />
                     </div>
-                    <p className="text-2xl">4,588</p>
+                    <p className="text-2xl">{students?.length}</p>
                   </div>
                   <p className="text-center">Total Students</p>
                 </div>
                 <div
-                  className="rounded-lg col-span-12 md:col-span-4 text-lightPurple pb-5 font-bold mb-5 md:mb-0"
+                  className="rounded-lg col-span-12 md:col-span-6 text-lightPurple pb-5 font-bold mb-5 md:mb-0"
                   style={boxShadow}
                 >
                   <div className="flex items-center justify-center py-3">
                     <div>
                       <FaChalkboardTeacher className="w-8 h-8 pr-3" />
                     </div>
-                    <p className="text-2xl">34</p>
+                    <p className="text-2xl">{teachers?.length}</p>
                   </div>
                   <p className="text-center">Total Teachers</p>
-                </div>
-                <div
-                  className="rounded-lg col-span-12 md:col-span-4 text-red pb-5 font-bold mb-5 md:mb-0"
-                  style={boxShadow}
-                >
-                  <div className="flex items-center justify-center py-3">
-                    <div>
-                      <RiParentFill className="w-8 h-8 pr-3" />
-                    </div>
-                    <p className="text-2xl">1,544</p>
-                  </div>
-                  <p className="text-center">Total Parents</p>
                 </div>
               </div>
             </div>
@@ -139,119 +164,40 @@ export const Admin = () => {
                       <table className="min-w-full text-center text-sm font-light text-surface text-darkestPurple">
                         <thead className="border-b border-neutral-200 bg-neutral-50 text-lg dark:border-white/10">
                           <tr>
-                            <th scope="col" className=" px-6 py-4">
+                            <th scope="col" className="px-6 py-4">
                               #
                             </th>
-                            <th scope="col" className=" px-6 py-4">
+                            <th scope="col" className="px-6 py-4">
                               Name
                             </th>
-                            <th scope="col" className=" px-6 py-4">
-                              Entrance Class
+                            <th scope="col" className="px-6 py-4">
+                              Email
                             </th>
-                            <th scope="col" className=" px-6 py-4">
-                              Sex
+                            <th scope="col" className="px-6 py-4">
+                              Role
                             </th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="border-b border-neutral-200 dark:border-white/10">
-                            <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                              1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              Justina Ifidon
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              JSS1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              F
-                            </td>
-                          </tr>
-                          <tr className="border-b border-neutral-200 dark:border-white/10">
-                            <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                              2
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              Justina Ifidon
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              JSS1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              F
-                            </td>
-                          </tr>
-                          <tr className="border-b border-neutral-200 dark:border-white/10">
-                            <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                              3
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              Justina Ifidon
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              JSS1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              F
-                            </td>
-                          </tr>
-                          <tr className="border-b border-neutral-200 dark:border-white/10">
-                            <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                              3
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              Justina Ifidon
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              JSS1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              F
-                            </td>
-                          </tr>
-                          <tr className="border-b border-neutral-200 dark:border-white/10">
-                            <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                              3
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              Justina Ifidon
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              JSS1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              F
-                            </td>
-                          </tr>
-                          <tr className="border-b border-neutral-200 dark:border-white/10">
-                            <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                              3
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              Justina Ifidon
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              JSS1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              F
-                            </td>
-                          </tr>
-                          <tr className="border-b border-neutral-200 dark:border-white/10">
-                            <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                              3
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              Justina Ifidon
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              JSS1
-                            </td>
-                            <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                              F
-                            </td>
-                          </tr>
+                          {mainUsers?.map((user, index) => (
+                            <tr
+                              key={index}
+                              className="border-b border-neutral-200 dark:border-white/10"
+                            >
+                              <td className="whitespace-nowrap px-6 py-4 font-medium">
+                                {index + 1}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
+                                {user.name}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
+                                {user.email}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
+                                {user.role}
+                              </td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
@@ -270,179 +216,6 @@ export const Admin = () => {
                   <span className="bold">Selected Date:</span>{" "}
                   {date.toDateString()}
                 </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-12 bg-white p-5 my-10 rounded-lg">
-            <div className="flex justify-between col-span-12">
-              <h2 className="text-2xl font-bold text-darkestPurple">
-                Payments
-              </h2>
-              <div>
-                <select
-                  name="session"
-                  id="session"
-                  className="bg-transparent border-solid border-2 rounded-lg px-4 border-gray"
-                >
-                  <option value="2022/23">Latest Payment</option>
-                  <option value="2022/23">2022/23</option>
-                  <option value="2022/23">2022/23</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex flex-col col-span-12">
-              <div className="overflow-x-auto md:-mx-6 lg:-mx-8">
-                <div className="inline-block min-w-full py-2 md:px-6 lg:px-8">
-                  <div className="overflow-hidden">
-                    <table className="min-w-full text-center text-sm font-light text-surface text-darkestPurple">
-                      <thead className="border-b border-neutral-200 bg-neutral-50 text-lg dark:border-white/10">
-                        <tr>
-                          <th scope="col" className=" px-6 py-4">
-                            #
-                          </th>
-                          <th scope="col" className=" px-6 py-4">
-                            Name
-                          </th>
-                          <th scope="col" className=" px-6 py-4">
-                            Description
-                          </th>
-                          <th scope="col" className=" px-6 py-4">
-                            Amount
-                          </th>
-                          <th scope="col" className=" px-6 py-4">
-                            Date
-                          </th>
-                          <th scope="col" className=" px-6 py-4">
-                            Time
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-neutral-200 dark:border-white/10">
-                          <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                            1
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            Justina Ifidon
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            School Fees
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            N350, 000
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            12/04/23
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            3:33pm
-                          </td>
-                        </tr>
-                        <tr className="border-b border-neutral-200 dark:border-white/10">
-                          <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                            1
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            Justina Ifidon
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            School Fees
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            N350, 000
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            12/04/23
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            3:33pm
-                          </td>
-                        </tr>
-                        <tr className="border-b border-neutral-200 dark:border-white/10">
-                          <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                            1
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            Justina Ifidon
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            School Fees
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            N350, 000
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            12/04/23
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            3:33pm
-                          </td>
-                        </tr>
-                        <tr className="border-b border-neutral-200 dark:border-white/10">
-                          <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                            1
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            Justina Ifidon
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            School Fees
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            N350, 000
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            12/04/23
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            3:33pm
-                          </td>
-                        </tr>
-                        <tr className="border-b border-neutral-200 dark:border-white/10">
-                          <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                            1
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            Justina Ifidon
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            School Fees
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            N350, 000
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            12/04/23
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            3:33pm
-                          </td>
-                        </tr>
-                        <tr className="border-b border-neutral-200 dark:border-white/10">
-                          <td className="whitespace-nowrap  px-6 py-4 font-medium">
-                            1
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            Justina Ifidon
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            School Fees
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            N350, 000
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            12/04/23
-                          </td>
-                          <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                            3:33pm
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

@@ -1,15 +1,10 @@
 const mongoose = require("mongoose");
 
-const studentSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   role: {
     type: String,
-    enum: ["student"],
+    enum: ["teacher", "student", "admin", "parent"],
     required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
   },
   password: {
     type: String,
@@ -24,59 +19,48 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  date_of_birth: {
-    type: Date,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
+
   phone: {
     type: String,
     required: true,
   },
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now,
-  },
-  parents: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Parent",
-    },
-  ],
-  financial: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Financial",
-  },
-  results: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Result",
-    },
-  ],
 });
 
-const parentSchema = new mongoose.Schema({
-  role: {
-    type: String,
-    enum: ["parent"],
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
+userSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    let roleModel;
+    let roleDataFields = {}; // Object to store specific fields for the role
+
+    switch (this.role) {
+      case "teacher":
+        roleModel = "Teacher";
+        roleDataFields.subjects = []; // Initialize subjects array for teacher
+        break;
+      case "student":
+        roleModel = "Student";
+        break;
+      case "admin":
+        roleModel = "Admin";
+        roleDataFields.permissions = {}; // Initialize permissions object for admin
+        break;
+      default:
+        roleModel = null;
+    }
+
+    if (roleModel) {
+      const RoleModel = mongoose.model(roleModel);
+      const roleData = new RoleModel({
+        _id: this._id,
+        ...this.toObject(),
+        ...roleDataFields, // Spread the specific fields into the role data
+      });
+      await roleData.save();
+    }
+  }
+  next();
+});
+
+const studentSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -86,40 +70,27 @@ const parentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  address: {
-    type: String,
-    required: true,
-  },
+
   phone: {
     type: String,
     required: true,
   },
-  children: [
+
+  subjects_registered_for: [
     {
-      name: String,
-      student: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Student",
-      },
+      subject: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
+      attendance: [
+        {
+          class: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
+          status: { type: String, enum: ["present", "absent"] },
+        },
+      ],
+      results: [{ type: mongoose.Schema.Types.ObjectId, ref: "Result" }],
     },
   ],
 });
 
 const teacherSchema = new mongoose.Schema({
-  role: {
-    type: String,
-    enum: ["teacher"],
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
   email: {
     type: String,
     required: true,
@@ -129,14 +100,7 @@ const teacherSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  date_of_birth: {
-    type: Date,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
+
   phone: {
     type: String,
     required: true,
@@ -147,48 +111,28 @@ const teacherSchema = new mongoose.Schema({
       ref: "Subject",
     },
   ],
-  permissions: {
-    update_results: {
-      type: Boolean,
-      default: false,
-    },
-    student_results_access: [
-      {
-        subject: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Subject",
-        },
-        students: [
-          {
-            student: {
-              type: mongoose.Schema.Types.ObjectId,
-              ref: "Student",
-            },
-            name: String,
-            grade: String,
-            semester: String,
-          },
-        ],
-      },
-    ],
-  },
+
+  //   student_results: [
+  //     {
+  //       subject: {
+  //         type: mongoose.Schema.Types.ObjectId,
+  //         ref: "Subject",
+  //       },
+  //       students: [
+  //         {
+  //           student: {
+  //             type: mongoose.Schema.Types.ObjectId,
+  //             ref: "Student",
+  //           },
+  //           grade: String,
+  //           semester: String,
+  //         },
+  //       ],
+  //     },
+  //   ],
 });
 
 const adminSchema = new mongoose.Schema({
-  role: {
-    type: String,
-    enum: ["admin"],
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
   email: {
     type: String,
     required: true,
@@ -198,14 +142,7 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  date_of_birth: {
-    type: Date,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
+
   phone: {
     type: String,
     required: true,
@@ -244,58 +181,58 @@ const subjectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  teacher: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Teacher",
+  },
 });
 
+const updateTeacherSubjectList = async (doc) => {
+  if (doc instanceof Subject) {
+    const teacher = await Teacher.findOne(doc.teacher);
+
+    if (teacher) {
+      teacher.subjects.push(doc._id);
+
+      await teacher.save();
+    }
+  }
+};
+
+subjectSchema.post("save", updateTeacherSubjectList);
+
 const resultSchema = new mongoose.Schema({
-  student: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
-    required: true,
-  },
   subject: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subject",
     required: true,
   },
-  grade: {
-    type: String,
+  teacher: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Teacher",
     required: true,
   },
-  semester: {
-    type: String,
-    required: true,
-  },
-});
-
-const financialSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
     required: true,
   },
-  tuition_fee: {
-    type: Number,
-    required: true,
-  },
-  scholarship: {
-    type: Number,
-    required: true,
-  },
-  due_amount: {
-    type: Number,
-    required: true,
-  },
-  semester: {
+  grade: {
     type: String,
-    required: true,
+    default: null,
+    enum: ["A", "B", "C", "D", "F", null],
+  },
+  score: {
+    type: String,
+    default: null,
+  },
+  remark: {
+    type: String,
+    default: null,
   },
 });
 
 const classSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
   teacher: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Teacher",
@@ -306,32 +243,30 @@ const classSchema = new mongoose.Schema({
     ref: "Subject",
     required: true,
   },
-  schedule: {
-    type: String,
-    required: true,
-  },
-  semester: {
-    type: String,
-    required: true,
-  },
+  date: { type: Date, required: true },
+  time: { type: String, required: true },
+  attendance: [
+    {
+      student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      status: { type: String, enum: ["present", "absent"] },
+    },
+  ],
 });
 
+const User = mongoose.model("User", userSchema);
 const Class = mongoose.model("Class", classSchema);
 const Admin = mongoose.model("Admin", adminSchema);
-const Parent = mongoose.model("Parent", parentSchema);
-const Student = mongoose.model("Student", studentSchema);
-const Teacher = mongoose.model("Student", teacherSchema);
-const Financial = mongoose.model("Financial", financialSchema);
-const Subject = mongoose.model("Subject", subjectSchema);
 const Result = mongoose.model("Result", resultSchema);
+const Student = mongoose.model("Student", studentSchema);
+const Teacher = mongoose.model("Teacher", teacherSchema);
+const Subject = mongoose.model("Subject", subjectSchema);
 
 module.exports = {
+  User,
   Student,
-  Parent,
   Teacher,
   Admin,
   Subject,
   Result,
-  Financial,
   Class,
 };

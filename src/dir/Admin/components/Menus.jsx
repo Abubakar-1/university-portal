@@ -8,16 +8,6 @@ const Menus = [
   { title: "Dashboard", icon: <MdDashboard />, link: "/admin" },
   { title: "Users", icon: <HiMiniUsers />, link: "/users" },
   { title: "Academic", icon: <HiOutlineAcademicCap />, link: "/academic" },
-  {
-    title: "Financial",
-    icon: <MdOutlineAccountBalanceWallet />,
-    link: "/financial",
-  },
-  {
-    title: "Communication",
-    icon: <TbTopologyStar3 />,
-    link: "/communication",
-  },
 ];
 
 export { Menus };

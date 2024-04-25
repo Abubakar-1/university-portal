@@ -18,6 +18,7 @@ import {
 } from "@material-tailwind/react";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const Academic = () => {
   axios.defaults.withCredentials = true;
@@ -31,7 +32,9 @@ export const Academic = () => {
   const [courseDesc, setCourseDesc] = useState();
   const [subjectDialog, setSubjectDialog] = useState(false);
 
-  const { results, classes, subjects, runExtra, teachers } =
+  const navigate = useNavigate();
+
+  const { results, classes, subjects, runExtra, teachers, user } =
     useContext(UserContext);
 
   const handleButtonClick = (option) => {
@@ -75,6 +78,28 @@ export const Academic = () => {
     }
   };
 
+  const logOut = () => {
+    try {
+      axios
+        .get("http://localhost:5005/logout")
+        .then((result) => {
+          console.log(result);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  });
+
   useEffect(() => {
     runExtra();
   }, []);
@@ -95,6 +120,8 @@ export const Academic = () => {
               alt=""
               className="md:h-12 md:w-12 h-10 w-10 rounded-full"
             />
+
+            <Button onClick={logOut}>Logout</Button>
             <span className="md:hidden" onClick={handleClicked}>
               <IoMenu size={30} />
             </span>

@@ -16,10 +16,11 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const Users = () => {
   const { handleClicked, clicked } = useContext(ResponsiveContext);
-  const { mainUsers, Users } = useContext(UserContext);
+  const { mainUsers, Users, user } = useContext(UserContext);
 
   const [selectedRole, setSelectedRole] = useState(null);
   const [userDialog, setUserDialog] = useState(false);
@@ -28,6 +29,7 @@ export const Users = () => {
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const navigate = useNavigate();
 
   const handleButtonClick = (role) => {
     setSelectedRole(role);
@@ -63,9 +65,31 @@ export const Users = () => {
     }
   };
 
+  const logOut = () => {
+    try {
+      axios
+        .get("http://localhost:5005/logout")
+        .then((result) => {
+          console.log(result);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     Users();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  });
 
   const filteredUsers = selectedRole
     ? mainUsers.filter((user) => user.role === selectedRole)
@@ -88,6 +112,9 @@ export const Users = () => {
               alt=""
               className="md:h-12 md:w-12 h-10 w-10 rounded-full"
             />
+
+            <Button onClick={logOut}>Logout</Button>
+
             <span className="md:hidden" onClick={handleClicked}>
               <IoMenu size={30} />
             </span>

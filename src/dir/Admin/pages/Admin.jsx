@@ -47,6 +47,12 @@ export const Admin = () => {
     runExtra();
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  });
+
   const { userDetails } = user || {};
 
   return (

@@ -72,7 +72,7 @@ const isAdmin = async (req, res, next) => {
 const isTeacher = async (req, res, next) => {
   const user = req.decoded;
 
-  if (!user || user.role !== "teacher" || user.role !== "admin") {
+  if (user.role !== "teacher") {
     return res.status(403).json({ message: "Unauthorized" });
   }
 
@@ -540,12 +540,15 @@ app.post("/image", validateToken, upload, async (req, res) => {
   return res.send("Success");
 });
 
-app.get("/classes/:teacherId", async (req, res) => {
+app.get("/teacher-class", async (req, res) => {
   try {
-    const teacherId = req.params.teacherId;
+    const { teacherId } = req.query;
 
     // Find classes where the teacher's ID matches
-    const classes = await Class.find({ teacher: teacherId });
+    const classes = await Class.find({ teacher: teacherId }).populate(
+      "subject",
+      "code"
+    );
     // .populate("attendance.student");
 
     // If no classes found for the teacher, return an empty array
@@ -554,7 +557,30 @@ app.get("/classes/:teacherId", async (req, res) => {
     }
 
     // Return the classes data
-    res.status(200).json(classes);
+    return res.status(200).json(classes);
+  } catch (error) {
+    console.error("Error fetching classes data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/specific-class", async (req, res) => {
+  try {
+    const { classId } = req.query;
+
+    // Find classes where the teacher's ID matches
+    const classes = await Class.find({ _id: classId })
+      .populate("subject", "code")
+      .populate("attendance.student", "name");
+    // .populate("attendance.student");
+
+    // If no classes found for the teacher, return an empty array
+    if (!classes || classes.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Return the classes data
+    return res.status(200).json(classes);
   } catch (error) {
     console.error("Error fetching classes data:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -622,6 +648,21 @@ app.get("/results", validateToken, isAdmin, async (req, res) => {
       .populate("teacher", "name")
       .populate("student", "name");
 
+    if (!results) return res.status(404).send("Results info not found");
+
+    return res.status(200).send(results);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/results-per-subject", validateToken, isTeacher, async (req, res) => {
+  const { subjectId } = req.query;
+  try {
+    const results = await Result.find({ subject: subjectId })
+      .populate("student", "name")
+      .populate("subject", "code");
     if (!results) return res.status(404).send("Results info not found");
 
     return res.status(200).send(results);

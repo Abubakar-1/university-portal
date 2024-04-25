@@ -6,12 +6,8 @@ import { TbTopologyStar3 } from "react-icons/tb";
 
 const Menus = [
   { title: "Dashboard", icon: <MdDashboard />, link: "/admin" },
-  { title: "Users", icon: <HiMiniUsers />, link: "/admin/users" },
-  {
-    title: "Academic",
-    icon: <HiOutlineAcademicCap />,
-    link: "/admin/academic",
-  },
+  { title: "Users", icon: <HiMiniUsers />, link: "/users" },
+  { title: "Academic", icon: <HiOutlineAcademicCap />, link: "/academic" },
 ];
 
 export { Menus };

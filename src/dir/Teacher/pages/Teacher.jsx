@@ -1,23 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Menus } from "../components/Menus";
 import { FaUserGraduate } from "react-icons/fa6";
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { IoMenu } from "react-icons/io5";
-import { RiParentFill } from "react-icons/ri";
-import { MenuBar, ResponsiveMenuBar } from "../components/MenuBar";
-import Calendar from "react-calendar";
-import "../components/MyCalendar.css";
-import { UserContext } from "../../UserProvider";
-import { Button } from "@material-tailwind/react";
+import { MenuBar, ResponsiveMenuBar } from "../../Teacher/components/MenuBar";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import { Menus } from "../../Teacher/components/Menus";
+import { UserContext } from "../../UserProvider";
+import Calendar from "react-calendar";
 import { ResponsiveContext } from "../../ResponsiveProvider";
 
-export const Admin = () => {
-  const { user, students, teachers, mainUsers, runExtra } =
-    useContext(UserContext);
-  const [date, setDate] = useState(new Date());
+export const Teacher = () => {
+  axios.defaults.withCredentials = true;
+  const { user } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -26,6 +22,8 @@ export const Admin = () => {
   const boxShadow = {
     boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
   };
+
+  const [date, setDate] = useState(new Date());
 
   const logOut = () => {
     try {
@@ -42,10 +40,6 @@ export const Admin = () => {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    runExtra();
-  }, []);
 
   const { userDetails } = user || {};
 
@@ -107,28 +101,16 @@ export const Admin = () => {
               </div>
               <div className="grid grid-cols-12 py-10 gap-4 mx-4">
                 <div
-                  className="rounded-lg col-span-12 md:col-span-6 text-darkestPurple pb-5 font-bold mb-5 md:mb-0"
+                  className="rounded-lg col-span-12 md:col-span-12 text-darkestPurple pb-5 font-bold mb-5 md:mb-0"
                   style={boxShadow}
                 >
                   <div className="flex items-center justify-center py-3">
                     <div>
                       <FaUserGraduate className="w-8 h-8 pr-3" />
                     </div>
-                    <p className="text-2xl">{students?.length}</p>
+                    <p className="text-2xl">{userDetails?.subjects.length}</p>
                   </div>
-                  <p className="text-center">Total Students</p>
-                </div>
-                <div
-                  className="rounded-lg col-span-12 md:col-span-6 text-lightPurple pb-5 font-bold mb-5 md:mb-0"
-                  style={boxShadow}
-                >
-                  <div className="flex items-center justify-center py-3">
-                    <div>
-                      <FaChalkboardTeacher className="w-8 h-8 pr-3" />
-                    </div>
-                    <p className="text-2xl">{teachers?.length}</p>
-                  </div>
-                  <p className="text-center">Total Teachers</p>
+                  <p className="text-center">Total Subjects</p>
                 </div>
               </div>
             </div>
@@ -146,8 +128,8 @@ export const Admin = () => {
                 </select>
               </div>
               <div className="flex flex-col items-center justify-center h-[100%]">
-                <p className="font-bold text-lg">Total Revenue for the Year</p>
-                <div>#3,000,000</div>
+                <p className="font-bold text-lg">Total Students for the Year</p>
+                <div>4 </div>
               </div>
             </div>
           </div>
@@ -155,7 +137,7 @@ export const Admin = () => {
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 md:col-span-7 shadow-lg bg-white rounded-lg p-5">
               <h2 className="text-2xl font-bold text-darkestPurple">
-                Registrations
+                Subjects
               </h2>
               <div className="flex flex-col">
                 <div className="overflow-x-auto md:-mx-6 lg:-mx-8">
@@ -168,18 +150,18 @@ export const Admin = () => {
                               #
                             </th>
                             <th scope="col" className="px-6 py-4">
-                              Name
+                              Subject Name
                             </th>
                             <th scope="col" className="px-6 py-4">
-                              Email
+                              Code
                             </th>
                             <th scope="col" className="px-6 py-4">
-                              Role
+                              Description
                             </th>
                           </tr>
                         </thead>
                         <tbody>
-                          {mainUsers?.map((user, index) => (
+                          {userDetails?.subjects.map((sub, index) => (
                             <tr
                               key={index}
                               className="border-b border-neutral-200 dark:border-white/10"
@@ -188,13 +170,13 @@ export const Admin = () => {
                                 {index + 1}
                               </td>
                               <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
-                                {user.name}
+                                {sub.name}
                               </td>
                               <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
-                                {user.email}
+                                {sub.code}
                               </td>
                               <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
-                                {user.role}
+                                {sub.description}
                               </td>
                             </tr>
                           ))}

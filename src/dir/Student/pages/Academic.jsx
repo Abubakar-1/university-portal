@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { MenuBar } from "../components/MenuBar";
 import { Menus } from "../components/Menus";
-import { ResponsiveContext } from "../../ResponsiveProvider";
+import { ResponsiveContext } from "../components/ResponsiveProvider";
 import { IoMenu } from "react-icons/io5";
 import { UserContext } from "../../UserProvider";
 import {

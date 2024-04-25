@@ -30,9 +30,10 @@ export const Index = () => {
           roles === "admin" && navigate(`/admin`);
           roles === "teacher" && navigate(`/teacher`);
           roles === "student" && navigate(`/student`);
+          toast.success("Successfully signed in");
         })
         .catch((error) => {
-          toast.error(error.response.data);
+          toast.error(error.response.data.message);
           console.log(error);
         });
     } catch (error) {

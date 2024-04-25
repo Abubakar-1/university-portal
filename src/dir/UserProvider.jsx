@@ -15,6 +15,7 @@ export const UserProvider = ({ children }) => {
   const [results, setResults] = useState();
   const [classes, setClasses] = useState();
   const [rolePro, setRolePro] = useState("");
+  const [teachersClas, setTeachersClass] = useState();
 
   const fetchSubjects = async () => {
     try {
@@ -85,12 +86,29 @@ export const UserProvider = ({ children }) => {
     Classes();
   };
 
+  const teachersClass = async (teacherId) => {
+    try {
+      await axios
+        .get(`http://localhost:5005/teacher-class?teacherId=${teacherId}`)
+        .then((result) => {
+          console.log(result);
+          setTeachersClass(result?.data);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const fetchUser = async () => {
     try {
       await axios.get(`http://localhost:5005/user`).then((result) => {
         setUser(result.data);
         console.log(result.data);
         const role = result.data.role;
+        console.log(result.data.userDetails._id);
+        if (role === "teacher") {
+          teachersClass(result.data.userDetails._id);
+        }
         setRolePro(role);
       });
     } catch (error) {
@@ -116,6 +134,7 @@ export const UserProvider = ({ children }) => {
           rolePro,
           runExtra,
           Users,
+          teachersClas,
         }}
       >
         {children}

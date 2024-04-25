@@ -1,20 +1,18 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Menus } from "../components/Menus";
 import { FaUserGraduate } from "react-icons/fa6";
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { IoMenu } from "react-icons/io5";
 import { RiParentFill } from "react-icons/ri";
-import { MenuBar, ResponsiveMenuBar } from "../components/MenuBar";
-import Calendar from "react-calendar";
-import "../components/MyCalendar.css";
-import { UserContext } from "../../UserProvider";
+import { MenuBar, ResponsiveMenuBar } from "../../Teacher/components/MenuBar";
 import { Button } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import { Menus } from "../../Teacher/components/Menus";
+import { UserContext } from "../../UserProvider";
 import { ResponsiveContext } from "../../ResponsiveProvider";
 
-export const Admin = () => {
+export const Teacher = () => {
   const { user, students, teachers, mainUsers, runExtra } =
     useContext(UserContext);
   const [date, setDate] = useState(new Date());
@@ -210,7 +208,7 @@ export const Admin = () => {
                 <h1 className="text-white text-2xl font-bold">Events</h1>
                 <h1 className="text-center">React Calendar</h1>
                 <div className="calendar-container">
-                  <Calendar onChange={setDate} value={date} />
+                  {/* <Calendar onChange={setDate} value={date} /> */}
                 </div>
                 <p className="text-center text-white">
                   <span className="bold">Selected Date:</span>{" "}

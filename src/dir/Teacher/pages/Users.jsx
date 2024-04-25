@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { MenuBar, ResponsiveMenuBar } from "../components/MenuBar";
 import { IoMenu } from "react-icons/io5";
 import { Menus } from "../components/Menus";
-import { ResponsiveContext } from "../../ResponsiveProvider";
+import { ResponsiveContext } from "../components/ResponsiveProvider";
 import { UserContext } from "../../UserProvider";
 import { ToastContainer, toast } from "react-toastify";
 import {
@@ -84,6 +84,12 @@ export const Users = () => {
   useEffect(() => {
     Users();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  });
 
   const filteredUsers = selectedRole
     ? mainUsers.filter((user) => user.role === selectedRole)
@@ -261,7 +267,6 @@ export const Users = () => {
                 >
                   <Option value={"admin"}>Admin</Option>
                   <Option value={"teacher"}>Teacher</Option>
-                  <Option value={"student"}>Student</Option>
                 </Select>
 
                 <Typography className="-mb-2" variant="h6">

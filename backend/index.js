@@ -285,13 +285,13 @@ app.post("/create-subject", validateToken, isAdmin, async (req, res) => {
   }
 });
 
-app.post("/:studentId/register", validateToken, async (req, res) => {
+app.post("/register-subject", validateToken, async (req, res) => {
   try {
     const { subjectId } = req.body;
-    const studentId = req.params.studentId;
+    const { studentId } = req.query;
 
     // Find the student by ID
-    const student = await Student.findById(studentId);
+    const student = await Student.findOne({ _id: studentId });
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
@@ -463,7 +463,7 @@ app.post("/create-result", validateToken, async (req, res) => {
   }
 });
 
-app.post("/mark-attendance", validateToken, isTeacher, async (req, res) => {
+app.post("/mark-attendance", validateToken, async (req, res) => {
   try {
     const { classId, studentId } = req.body;
 
@@ -564,6 +564,30 @@ app.get("/teacher-class", async (req, res) => {
   }
 });
 
+app.get("/student-class", async (req, res) => {
+  try {
+    const { studentId } = req.query;
+
+    // Find classes where the teacher's ID matches
+    const classes = await Class.find({ student: studentId }).populate(
+      "subject",
+      "code"
+    );
+    // .populate("attendance.student");
+
+    // If no classes found for the teacher, return an empty array
+    if (!classes || classes.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Return the classes data
+    return res.status(200).json(classes);
+  } catch (error) {
+    console.error("Error fetching classes data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.get("/specific-class", async (req, res) => {
   try {
     const { classId } = req.query;
@@ -587,7 +611,7 @@ app.get("/specific-class", async (req, res) => {
   }
 });
 
-app.get("/subjects", validateToken, isAdmin, async (req, res) => {
+app.get("/subjects", validateToken, async (req, res) => {
   try {
     const subjects = await Subject.find().populate("teacher", "name");
 
@@ -644,6 +668,23 @@ app.get("/teachers", validateToken, isAdmin, async (req, res) => {
 app.get("/results", validateToken, isAdmin, async (req, res) => {
   try {
     const results = await Result.find()
+      .populate("subject", "name")
+      .populate("teacher", "name")
+      .populate("student", "name");
+
+    if (!results) return res.status(404).send("Results info not found");
+
+    return res.status(200).send(results);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/student-result", validateToken, async (req, res) => {
+  const { studentId } = req.query;
+  try {
+    const results = await Result.find({ student: studentId })
       .populate("subject", "name")
       .populate("teacher", "name")
       .populate("student", "name");

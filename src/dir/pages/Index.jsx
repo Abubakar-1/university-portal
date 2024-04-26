@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Input } from "@material-tailwind/react";
 import { ToastContainer, toast } from "react-toastify";
@@ -10,7 +10,7 @@ export const Index = () => {
   axios.defaults.withCredentials = true;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { user, fetchUser } = useContext(UserContext);
+  const { user, fetchUser, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -24,6 +24,8 @@ export const Index = () => {
         })
         .then(async (result) => {
           console.log(result);
+          const currentuser = fetchUser();
+          setUser(currentuser.data);
           const roles = result.data.user.role;
           console.log(roles);
 
@@ -47,7 +49,7 @@ export const Index = () => {
       <ToastContainer position="top-center" />
       <div className="h-[100vh] flex flex-col items-center justify-center">
         <h2 className="text-2xl text-center text-lightPurple">
-          Login | Student Portal
+          Login | University Portal
         </h2>
         <Card className="mt-6 w-96 p-10">
           <form onSubmit={handleLogin} className="grid place-items-center">

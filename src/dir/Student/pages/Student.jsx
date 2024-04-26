@@ -1,19 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
-import { FaUserGraduate } from "react-icons/fa6";
-import { FaChalkboardTeacher } from "react-icons/fa";
-import { IoMenu } from "react-icons/io5";
-import { MenuBar, ResponsiveMenuBar } from "../../Teacher/components/MenuBar";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import { Menus } from "../../Teacher/components/Menus";
-import { UserContext } from "../../UserProvider";
-import Calendar from "react-calendar";
+import React, { useContext, useEffect, useState } from "react";
 import { ResponsiveContext } from "../../ResponsiveProvider";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../UserProvider";
+import { ToastContainer } from "react-toastify";
+import { MenuBar } from "../../Admin/components/MenuBar";
+import { ResponsiveMenuBar } from "../components/MenuBar";
+import { IoMenu } from "react-icons/io5";
+import { FaUserGraduate } from "react-icons/fa6";
+import Calendar from "react-calendar";
+import { Menus } from "../components/Menus";
 
-export const Teacher = () => {
+export const Student = () => {
   axios.defaults.withCredentials = true;
-  const { user } = useContext(UserContext);
+  const { user, fetchUser } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -25,9 +25,13 @@ export const Teacher = () => {
 
   const [date, setDate] = useState(new Date());
 
-  const logOut = () => {
+  useEffect(() => {
+    // fetchClasses(user?.id);
+  });
+
+  const logOut = async () => {
     try {
-      axios
+      await axios
         .get("http://localhost:5005/logout")
         .then((result) => {
           console.log(result);
@@ -43,6 +47,8 @@ export const Teacher = () => {
 
   const { userDetails } = user || {};
 
+  console.log("this is user", user);
+  console.log("this is user", userDetails);
   return (
     <>
       <ToastContainer position="top-center" />
@@ -108,9 +114,11 @@ export const Teacher = () => {
                     <div>
                       <FaUserGraduate className="w-8 h-8 pr-3" />
                     </div>
-                    <p className="text-2xl">{userDetails?.subjects.length}</p>
+                    <p className="text-2xl">
+                      {user?.userDetails.subjects_registered_for.length}
+                    </p>
                   </div>
-                  <p className="text-center">Total Subjects</p>
+                  <p className="text-center">Total Subject Registered</p>
                 </div>
               </div>
             </div>
@@ -128,8 +136,8 @@ export const Teacher = () => {
                 </select>
               </div>
               <div className="flex flex-col items-center justify-center h-[100%]">
-                <p className="font-bold text-lg">Total Students for the Year</p>
-                <div>4 </div>
+                <p className="font-bold text-lg">Average Percentage</p>
+                <div>50%</div>
               </div>
             </div>
           </div>
@@ -137,7 +145,7 @@ export const Teacher = () => {
           <div className="grid grid-cols-12 gap-4">
             <div className="col-span-12 md:col-span-7 shadow-lg bg-white rounded-lg p-5">
               <h2 className="text-2xl font-bold text-darkestPurple">
-                Subjects
+                Registered Subjects
               </h2>
               <div className="flex flex-col">
                 <div className="overflow-x-auto md:-mx-6 lg:-mx-8">
@@ -161,25 +169,27 @@ export const Teacher = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {userDetails?.subjects.map((sub, index) => (
-                            <tr
-                              key={index}
-                              className="border-b border-neutral-200 dark:border-white/10"
-                            >
-                              <td className="whitespace-nowrap px-6 py-4 font-medium">
-                                {index + 1}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
-                                {sub.name}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
-                                {sub.code}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
-                                {sub.description}
-                              </td>
-                            </tr>
-                          ))}
+                          {user?.userDetails.subjects_registered_for.map(
+                            (sub, index) => (
+                              <tr
+                                key={index}
+                                className="border-b border-neutral-200 dark:border-white/10"
+                              >
+                                <td className="whitespace-nowrap px-6 py-4 font-medium">
+                                  {index + 1}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
+                                  {sub.subject.name}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
+                                  {sub.subject.code}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-4 text-darkestPurple font-medium">
+                                  {sub.subject.description}
+                                </td>
+                              </tr>
+                            )
+                          )}
                         </tbody>
                       </table>
                     </div>

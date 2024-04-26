@@ -95,6 +95,12 @@ export const Academic = () => {
   };
 
   useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  });
+
+  useEffect(() => {
     runExtra();
   }, []);
   return (

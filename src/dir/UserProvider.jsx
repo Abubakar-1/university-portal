@@ -16,6 +16,49 @@ export const UserProvider = ({ children }) => {
   const [classes, setClasses] = useState();
   const [rolePro, setRolePro] = useState("");
   const [teachersClas, setTeachersClass] = useState();
+  const [studResult, setStudResult] = useState();
+
+  const fetchUser = async () => {
+    try {
+      await axios.get(`http://localhost:5005/user`).then((result) => {
+        console.log(result.data);
+        setUser(result.data);
+        const role = result.data.role;
+        console.log(result.data.userDetails._id);
+        if (role === "teacher") {
+          teachersClass(result.data.userDetails._id);
+        }
+        if (role === "student") {
+          fetchStudentResults(result.data.userDetails._id);
+        }
+        fetchSubjects();
+        setRolePro(role);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+    setUser(user);
+  }, []);
+
+  const fetchStudentResults = async (id) => {
+    try {
+      await axios
+        .get(`http://localhost:5005/student-result?studentId=${id}`)
+        .then((result) => {
+          console.log("result", result);
+          setStudResult(result.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const fetchSubjects = async () => {
     try {
@@ -99,27 +142,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const fetchUser = async () => {
-    try {
-      await axios.get(`http://localhost:5005/user`).then((result) => {
-        setUser(result.data);
-        console.log(result.data);
-        const role = result.data.role;
-        console.log(result.data.userDetails._id);
-        if (role === "teacher") {
-          teachersClass(result.data.userDetails._id);
-        }
-        setRolePro(role);
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
-
   return (
     <>
       <UserContext.Provider
@@ -135,6 +157,9 @@ export const UserProvider = ({ children }) => {
           runExtra,
           Users,
           teachersClas,
+          fetchUser,
+          setUser,
+          studResult,
         }}
       >
         {children}

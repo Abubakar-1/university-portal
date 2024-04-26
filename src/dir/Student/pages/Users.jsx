@@ -85,6 +85,12 @@ export const Users = () => {
     Users();
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  });
+
   const filteredUsers = selectedRole
     ? mainUsers.filter((user) => user.role === selectedRole)
     : mainUsers;

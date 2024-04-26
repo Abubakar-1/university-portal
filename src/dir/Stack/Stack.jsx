@@ -8,6 +8,9 @@ import { Academic } from "../Admin/pages/Academic";
 import { Teacher } from "../Teacher/pages/Teacher";
 import { Classes } from "../Teacher/pages/Classes";
 import { Results } from "../Teacher/pages/Results";
+import { Student } from "../Student/pages/Student";
+import { StudentClasses } from "../Student/pages/StudentClasses";
+import { StudentResults } from "../Student/pages/StudentResults";
 
 export const Stack = () => {
   return (
@@ -25,6 +28,12 @@ export const Stack = () => {
           <Route index element={<Teacher />} />
           <Route path="classes" element={<Classes />} />
           <Route path="results" element={<Results />} />
+        </Route>
+
+        <Route path="/student">
+          <Route index element={<Student />} />
+          <Route path="classes" element={<StudentClasses />} />
+          <Route path="results" element={<StudentResults />} />
         </Route>
 
         <Route path="*" element={<Error404 />} />

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { MenuBar, ResponsiveMenuBar } from "../components/MenuBar";
 import { Menus } from "../components/Menus";
-import { Button } from "@material-tailwind/react";
+import { Button, Chip } from "@material-tailwind/react";
 import { IoMenu } from "react-icons/io5";
 import { UserContext } from "../../UserProvider";
 import { ResponsiveContext } from "../../ResponsiveProvider";
@@ -83,16 +83,16 @@ export const StudentResults = () => {
                       <thead className="border-b border-neutral-200 bg-neutral-50 text-lg dark:border-white/10">
                         <tr>
                           <th scope="col" className=" px-6 py-4">
-                            Subject Code
+                            Subject Name
                           </th>
                           <th scope="col" className=" px-6 py-4">
-                            Name
+                            Grade
                           </th>
                           <th scope="col" className=" px-6 py-4">
-                            View
+                            Score
                           </th>
                           <th scope="col" className=" px-6 py-4">
-                            Add
+                            Remark
                           </th>
                         </tr>
                       </thead>
@@ -109,11 +109,30 @@ export const StudentResults = () => {
                               <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
                                 {sub.grade}
                               </td>
-                              <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
-                                {sub.remark}
-                              </td>
+
                               <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
                                 {sub.score}
+                              </td>
+                              <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
+                                <div className="w-max">
+                                  <Chip
+                                    size="sm"
+                                    variant="ghost"
+                                    value={sub.remark}
+                                    color={
+                                      studResult.remark === "Excellent"
+                                        ? "green"
+                                        : studResult.remark === "Good"
+                                          ? "teal"
+                                          : studResult.remark === "Average"
+                                            ? "cyan"
+                                            : studResult.remark ===
+                                                "Below Aberage"
+                                              ? "purple"
+                                              : "amber"
+                                    }
+                                  />
+                                </div>
                               </td>
                             </tr>
                           );

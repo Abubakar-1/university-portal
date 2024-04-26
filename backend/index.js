@@ -15,6 +15,7 @@ const bcrypt = require("bcrypt");
 const { User, Student, Subject, Class, Teacher, Result } = require("./models");
 const multerError = require("./handleError");
 const upload = require("./imageValidation");
+const { ObjectId } = require("mongodb");
 
 const connectionparams = {
   useNewURLParser: true,
@@ -633,6 +634,23 @@ app.get("/users", validateToken, isAdmin, async (req, res) => {
     if (!users) return res.status(404).send("Users info not found");
 
     return res.status(200).send(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/students-per-subject", validateToken, isTeacher, async (req, res) => {
+  const { subjectId } = req.query;
+
+  try {
+    const students = await Student.find({
+      "subjects_registered_for.subject": { $in: subjectId },
+    });
+
+    if (!students) return res.status(404).send("Students info not found");
+
+    return res.status(200).send(students);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });

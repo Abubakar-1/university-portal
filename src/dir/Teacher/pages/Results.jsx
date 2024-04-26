@@ -32,6 +32,7 @@ export const Results = () => {
   const [score, setScore] = useState("");
   const [studentId, setStudentId] = useState("");
   const [resultForm, setResultForm] = useState(false);
+  const [studentsPerSubject, setStudentsPerSubject] = useState();
 
   const logOut = () => {
     try {
@@ -70,6 +71,26 @@ export const Results = () => {
     await viewSubjectResult(id);
     setResultForm(true);
     setSubjectId(id);
+  };
+
+  const handleAddResult = (id) => {
+    getStudentPerSubject(id);
+    openResultForm(id);
+  };
+
+  const getStudentPerSubject = async (subjectId) => {
+    try {
+      await axios
+        .get(
+          `http://localhost:5005/students-per-subject?subjectId=${subjectId}`
+        )
+        .then((result) => {
+          console.log(result);
+          setStudentsPerSubject(result.data);
+        });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const createResult = async (e) => {
@@ -178,7 +199,7 @@ export const Results = () => {
                               <td className="whitespace-nowrap  px-6 py-4 text-darkestPurple font-medium">
                                 <Button
                                   color="deep-purple"
-                                  onClick={() => openResultForm(sub._id)}
+                                  onClick={() => handleAddResult(sub._id)}
                                 >
                                   Add result
                                 </Button>
@@ -307,14 +328,14 @@ export const Results = () => {
                   Student
                 </Typography>
                 <Select
-                  label="Subject"
+                  label="Student"
                   value={studentId}
                   onChange={(e) => setStudentId(e)}
                   color="blue"
                 >
-                  {subjectResult?.map((sub, key) => (
-                    <Option value={sub.student._id} key={key}>
-                      {sub.student.name}
+                  {studentsPerSubject?.map((stud, key) => (
+                    <Option value={stud._id} key={key}>
+                      {stud.name}
                     </Option>
                   ))}
                 </Select>
